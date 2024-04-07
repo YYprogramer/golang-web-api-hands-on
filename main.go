@@ -22,7 +22,7 @@ func main() {
 
 	r.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, map[string]string{
-			"message": "hello world",
+			"message": "hello",
 		})
 	})
 	r.Get("/message", messageHandler.Get)
