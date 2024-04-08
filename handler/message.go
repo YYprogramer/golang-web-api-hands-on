@@ -1,41 +1,48 @@
 package handler
 
 import (
-	"math/rand"
-	"net/http"
-	"time"
+	"golang-web-api-hands-on/handler/response"
+	"golang-web-api-hands-on/usecase"
 
-	"github.com/go-chi/render"
+	"github.com/go-chi/chi/v5"
 )
 
 type Message interface {
 	Get(w http.ResponseWriter, r *http.Request)
 }
 
-type messageHandler struct{}
+type messageHandler struct {
+	useCase usecase.Message
+}
 
-func NewMessage() Message {
-	return &messageHandler{}
+func NewMessageHandler(useCase usecase.Message) Message {
+	return &messageHandler{
+		useCase: useCase,
+	}
 }
 
 func (m *messageHandler) Get(w http.ResponseWriter, r *http.Request) {
-	messages := []string{
-		"Change before you have to.",
-		"There is always light behind the clouds.",
-		"If you can dream it, you can do it.",
-		"Love the life you live. Live the life you love.",
-		"変わる前に変える。",
-		"雲の後ろにはいつも光がある。",
-		"夢見ることができれば、それを実現できる。",
-		"生きる人生を愛し、愛する人生を生きる。",
+	ctx := r.Context()
+
+	messageID := chi.URLParam(r, "messageID")
+
+	if messageID == "" {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, response.ErrNotFound)
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	randomIndex := rand.Intn(len(messages))
+	result, err := b.useCase.Get(ctx, messageID)
+	if err != nil {
+		if err.Error() == "could not find message" {
+			render.Status(r, http.StatusNotFound)
+			render.JSON(w, r, response.ErrNotFound)
+			return
+		}
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.ErrSystemError)
+		return
+	}
 
-	message := messages[randomIndex]
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, map[string]string{
-		"message": message,
-	})
+	render.JSON(w, r, response.NewMessage(result))
 }
