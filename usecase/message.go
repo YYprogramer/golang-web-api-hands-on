@@ -35,5 +35,4 @@ func (m *messageUseCase) Get(ctx context.Context) string {
 	randomIndex := rand.Intn(len(messages))
 
 	return messages[randomIndex]
-	}
 }
