@@ -3,10 +3,7 @@ package usecase
 import (
 	"context"
 	"math/rand"
-	"net/http"
 	"time"
-
-	"github.com/go-chi/render"
 )
 
 type Message interface {
