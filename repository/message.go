@@ -1,5 +1,5 @@
 package repository
 
-type Message interface {
-
+type MessageRepository interface {
+GetMessage() string
 }
