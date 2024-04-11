@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"math/rand"
 	"net/http"
-	"time"
+
+	"golang-web-api-hands-on/handler/response"
+	"golang-web-api-hands-on/usecase"
 
 	"github.com/go-chi/render"
 )
@@ -12,28 +13,27 @@ type Message interface {
 	Get(w http.ResponseWriter, r *http.Request)
 }
 
-type messageHandler struct{}
+type messageHandler struct {
+	useCase usecase.Message
+}
 
-func NewMessage() Message {
-	return &messageHandler{}
+func NewMessage(useCase usecase.Message) Message {
+	return &messageHandler{
+		useCase: useCase,
+	}
 }
 
 func (m *messageHandler) Get(w http.ResponseWriter, r *http.Request) {
-	messages := []string{
-		"Change before you have to.",
-		"There is always light behind the clouds.",
-		"If you can dream it, you can do it.",
-		"Love the life you live. Live the life you love.",
-		"変わる前に変える。",
-		"雲の後ろにはいつも光がある。",
-		"夢見ることができれば、それを実現できる。",
-		"生きる人生を愛し、愛する人生を生きる。",
+	ctx := r.Context()
+
+	message := m.useCase.Get(ctx)
+
+	if message == "" {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, response.ErrNotFound)
+		return
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	randomIndex := rand.Intn(len(messages))
-
-	message := messages[randomIndex]
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, map[string]string{
 		"message": message,
