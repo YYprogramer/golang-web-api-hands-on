@@ -15,14 +15,15 @@ import (
 
 func main() {
 	r := chi.NewRouter()
-	messageHandler := handler.NewMessage()
+	messageUseCase := usecase.NewMessage()
+	messageHandler := handler.NewMessage(messageUseCase)
 	bookRepo := dao.NewBook()
 	bookUseCase := usecase.NewBook(bookRepo)
 	bookHandler := handler.NewBookHandler(bookUseCase)
 
 	r.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, map[string]string{
-			"message": "hello world",
+			"message": "hello",
 		})
 	})
 	r.Get("/message", messageHandler.Get)
