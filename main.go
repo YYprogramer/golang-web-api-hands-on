@@ -15,8 +15,8 @@ import (
 
 func main() {
 	r := chi.NewRouter()
-	messageUseCase := usecase.NewMessage()
-	messageHandler := handler.NewMessage(messageUseCase)
+	messageRepo := dao.NewMessageRepository()
+	messageHandler := handler.NewMessage(usecase.NewMessage(messageRepo))
 	bookRepo := dao.NewBook()
 	bookUseCase := usecase.NewBook(bookRepo)
 	bookHandler := handler.NewBookHandler(bookUseCase)
